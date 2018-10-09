@@ -10,7 +10,7 @@ SAP HANA on Azure
 </div>
 
 <div class="MCWHeader3">
-December 2017
+October 2018
 </div>
 
 
@@ -196,7 +196,7 @@ Contoso has been using SAP ERP and BW on HANA for its Finance/Logistics/Analytic
 
 Contoso Leadership and Planning Groups wants to drastically reduce server and storage hardware in their own datacenters to minimize IT related costs. Contoso has already a number of their non-SAP systems migrated to Azure. The leadership asked Contoso IT to look into the possibility of migrating its SAP HANA environment to cloud.
 
-Contoso IT decided to leverage its knowledge of the Microsoft cloud platform and existing ExpressRoute connectivity and host its SAP landscape in Azure. The intention is to migrate the BW system first (go live in August CY18), and migrate ECC in Q4 of CY18. The multi-stage approach is supposed to minimize potential migration risks.
+Contoso IT decided to leverage its knowledge of the Microsoft cloud platform and existing ExpressRoute connectivity and host its SAP landscape in Azure. The intention is to migrate the BW system first (go live in March CY19), and migrate ECC in Q4 of CY19. The multi-stage approach is supposed to minimize potential migration risks.
 
 Considering that Contoso management team often uses BW to support their management decisions, the systems should be highly available, and their performance must be predictable and consistent. In addition, the management team wants to leverage disaster recovery capabilities offered by Azure in order to ensure resiliency of the migrated environment in case the primary region hosting the new deployment becomes unavailable.
 
@@ -218,7 +218,7 @@ Before migrating the production environment, Contoso wants to test its new deplo
 
     -   BW migration to HANA in Azure VMs
 
-        -   Go-live date: March 2018
+        -   Go-live date: March 2019
 
         -   Current BW (ABAP Unicode) on-premises with HP-UX/Oracle and application layer on Linux
 
@@ -226,7 +226,7 @@ Before migrating the production environment, Contoso wants to test its new deplo
 
             -   Use 1-year Reserved VM Instance option for Production VMs
 
-    -   ERP is kept on-premises (with HP-UX/Oracle) until December 2018
+    -   ERP is kept on-premises (with HP-UX/Oracle) until December 2019
 
         -   Data is transferred from ERP (on-premises) to BW (in Cloud) every hour
 
@@ -264,7 +264,7 @@ Before migrating the production environment, Contoso wants to test its new deplo
 
     -   Backup
 
-        -   Long term backup -- use reasonable backup storage in Cloud
+        -   Long term backup -- use backup storage in Cloud
 
         -   Data loss not allowed
 
@@ -288,13 +288,13 @@ Before migrating the production environment, Contoso wants to test its new deplo
 
 ### Customer objections 
 
-1.  ECC remains on-premises until Dec CY18. How can we maintain integrations between ECC and BW?
+1.  ECC remains on-premises until Dec CY19. How can we maintain integrations between ECC and BW?
 
 2.  How much does Azure cost? Give us a few options (e.g. HA and non-HA, DR and non-DR).
 
 3.  Do I have to pay for virtual machines when they are stopped?
 
-4.  Can I automate the shutdown of virtual machines at periodic times of day?
+4.  Can I automate the shutdown of virtual machines at specific times of day?
 
 ### Infographic for common scenarios
 
@@ -483,37 +483,87 @@ Central IT (VP of IT Operations)
 
 ## Preferred solution
 
+In order to comply with requirements provided by Contoso Group, the preferred solution consists of several options that provide different degree of resiliency.  
+
 Azure Virtual Machines -- BW on HANA without HA
+
+The first option delivers the core functionality without SAP HANA high availability and disaster recovery capabilities. It implements a cross premises scenario, with the customer’s on-premises corporate network and an Azure datacenter in the East US 2 region. For cross-premises connectivity, it leverages the MPLS-based ExpressRoute circuit. 
+
+As per customer's requirements, the Azure deployment includes Dev, Test, QA, and production environments. The Dev, Test, and QA Azure VMs reside on the same non-PRD subnet. There are two Dev and Test Standard E32v3 Azure VMs, each with one P15 data disk, one P10 transaction log disk, and one P15 shared disk. A single QA Azure VM uses the Standad M64 size, with one P30 data disk, one P20 transaction log disk, and one P30 shared data disk. In order to minimize cost, Dev, Test, and QA Azure VMs can be turned off whenever they are not actively used.
+
+The solution also includes a standalone HANA production database running on a Standard M128s Azure VM, which offers memory-optimized design. The Azure VM is configured with two P30 disks, striped into a single volume hosting data files, which deliver total of 2 TB of disk space and 400 MB/s throughput. Logs are stored on a volume residing on two P15 disks that deliver combined 512 GB of disk space and 250 MB/s throughpupt. The shared HANA volume uses one P30 disk, with 1 TB of disk space and 200 MB/s throughput.
+
+In addition to the Azure VM hosting HANA DB, the solution includes a pair of Azure VMs virtual machines that serve as the ASCS and the application servers. This satisifies the customer requirement, according to which the Business Warehouse application servers must be able to handle 15,000 SAPS. Two E8_v3 Azure VMs give us total of 18,512 SAPS. 
+
+In order to facilitate short term backup, the solution relies on four P30 Premium Storage disks. For long term backups, the solution utilizes Azure Site Recovery vault, with retention of 30 daily, 12 monthly, and 3 yearly backups, yielding the total of 54TB.
 
 ![Diagram of the BW on HANA without HA preferred solution. At this time, we are unable to capture all of the information in the diagram. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image14.png "BW on HANA without HA preferred solution")
 
 Azure Virtual Machines -- BW on HANA without HA -- Cost estimate
 
+The corresponding monthly cost estimate accounts for compute, storage, and network-related charges calculated based on the resource pricing in the US East 2 Azure region. The network charges include the cost of the metered data plan for ExpressRoute 500 Mbps port speed with the expected outbound data transfer of 5TB per month. There is also an extra charge associated with ExpressRoute High Performance virtual gateway, which can facilitate network throughput of close to 10 Gbps. 
+
+Compute costs result primarily from the use of Azure VMs hosting the SAP production application and database tiers, as well as compute components of the dev/test and QA environments. Storage charges reflect primarily the use of Premium Storage hostng virtual machine disk files. Note that this cost does not depend on the usage patterns. In addition, there is cost resulting from the need for short term and long term backups. 
+
+Note that the charges do not take into account licensing costs, ExpressRoute telco charges, pricing of the Microsoft Premier Support which is required when deploying SAP production solutions in Azure, and any managed services.
+
 ![A table displays the cost estimates for BW on HANA without HA. At this time, we are unable to capture all of the information in the table. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image15.png "BW on HANA without HA ??? Cost estimate")
 
 Azure Virtual Machines -- BW on HANA with HA
+
+The second option delivers the same core functionality as the first option but, in addition, it provides high availability for the SAP HANA deployment. This is accomplished by provisioning two identically configured M128s Azure VM into the same availabilty set within the PRD-DB subnet. The two Azure VMs form the database tier and host two identically configured HANA instances replicating synchronously with each other by using HANA System Replication. Implementing high availability in the application tier involves provisioning two pairs of Azure VMs into the PRD - ASCS+APPL subnet, with each pair in its own availability set. The first pair consists of two E2_v3 Azure VMs hosting SAP ASCS and NFS components. The second pair consists of a two E8_v3 Azure VMs, forming a Linux-based cluster, hosting the application servers and delivering total of 17,512 SAPS.
 
 ![Diagram of the BW on HANA with HA preferred solution. At this time, we are unable to capture all of the information in the diagram. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image16.png "BW on HANA with HA preferred solution")
 
 Azure Virtual Machines -- BW on HANA with HA -- Cost estimate
 
+The cost of the second option reflects additional components necessary to provide high availability. These components effectively double the cost of the production instance of the HANA database included in the first option (for both compute and storage resources). In addition, there are extra charges associated with implementing high availability of the application tier. In this case, the increase represents compute and storage resources of two E2_v3 Azure VMs that host the ASCS and NFS components.
+
 ![A table displays the cost estimates for BW on HANA with HA. At this time, we are unable to capture all of the information in the table. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image17.png "BW on HANA with HA Costs")
 
 SAP HANA HA on Azure VMs -- Setup Sequence
+
+Our sample implementation procedure consists of the following sequence of steps:
+
+-   Provision Azure infrastructure and two Azure Linux VMs
+-   Update Linux OS  and install HA extension
+-   Enable cross-node SSH access
+-   Set up disk layout
+-   Configure name resolution
+-   Install cluster
+-   Configure Corosync
+-   Install HANA HA packages
+-   Install SAP HANA
+-   Upgrade SAP Host Agent
+-   Configure HANA replication
+-   Configure Cluster Framework
+-   Create STONITH device
+-   Register SAP HANA resources
 
 ![The setup sequence for SAP HANA HA on Azure VMs is listed. At this time, we are unable to capture all of the information in the setup sequence. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image18.png "SAP HANA HA on Azure VMs ??? Setup Sequence")
 
 SAP HANA HA on Azure VMs -- Setup Sequence (detailed)
 
+We start by provisioning Azure infrastructure and two Azure Linux VMs (using SLES-for-SAP Applications 12 SP3). To simplify the deployment, we leverage an Azure Resource Manager-based template hosted on GitHub. The template provisions a pair of Azure VMs into a subnet of a virtual network and behind an Azure internal load balancer. The load balance has the health probe set to TCP 62500 and includes a set of predefined load balancing rules. Each rule  has the Direct Server Return enabled.
+Next, since we are using the Bring Your Own Subscription image of SUSE, we  register our installation to ensure access to package repositories. Following the registration, we update the operating system and install the public-cloud module. In order to facilitate clustering, we also enable cross-node passwordless SSH access. 
+We set up our disk volumes by using Logical Volume Manager. First, we create physical volumes for all disks, volume groups for the data files, the log files and the shared HANA directory, and the corresponding logical volumes. Next, we create mount directories, identify UUID values of all logical volumes, create relevant fstab entries, and finally perform mounts. This procedure is carried out on both nodes. 
+We also configure name resolution by modifying /etc/hosts on each server.
+Next, we install cluster on the first node and, once completed, join the second node to the newly set up cluster.
+As part of cluster configuration, we  also configure corosync transport and nodelist settings and restart corosync service on both nodes. In addition, we install HANA HA resource agent packages. 
+With all prerequisites in place, we proceed with using HANA DB Lifecycle Manager to install SAP HANA. 
+Following the installation we upgrade SAP Host Agent, configure HANA replication and Cluster Framework, create STONITH device in the form of an Azure Active Directory service principal, and, finally, register SAP HANA resources.
+
 ![A more detailed list of the setup sequence for SAP HANA HA on Azure VMs is listed. At this time, we are unable to capture all of the information in the setup sequence. Future versions of this course should address this.At this time, we are unable to capture all of the information in the detailed sequence. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image19.png)
 
 Azure virtual machines - BW on HANA with HA/DR
 
-![](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image20.png)
+To further enhance our design by providing disaster recovery capabilities, we create a virtual network in the West US Azure region and leverage ExpressRoute to provide cross-region and cross-premises connectivity. Next, we deploy another M128s Azure VM in the newly provisioned virtual network and configure it with asynchronous HANA system replication from the cluster hosting the primary database instance. We also implement a standby disaster recovery environment for the application tier. 
+
+![Diagram of the BW on HANA with HA/DR preferred solution.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image20.png)
 
 ## Checklist of preferred objection handling
 
-1.  ECC remains on-premises until Dec CY18. How can we maintain integrations between ECC and BW?
+1.  ECC remains on-premises until Dec CY19. How can we maintain integrations between ECC and BW?
 
     -   Microsoft supports a hybrid solution, with symmetry between on-premises applications and those on the public cloud
 

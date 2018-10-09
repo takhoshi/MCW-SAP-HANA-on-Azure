@@ -181,54 +181,68 @@ In this exercise, you will deploy Azure infrastructure prerequisites for impleme
 
 #### Tasks to complete
 
--   Deploy an Azure virtual machine running Windows with the following settings:
-
-    -   Name: **s03-hana-0**
-
-    -   VM disk type: **HDD**
-
-    -   User name: **demouser**
-
-    -   Password: **demo\@pass123**
-
-    -   Confirm password: **demo\@pass123**
+-   Deploy an Azure virtual machine with the following settings:
 
     -   Subscription: *the name of your Azure subscription*
 
-    -   Resource group: *create a new resource group named* **hana-s03-RG**
+    -   Resource group: *the name of a new resource group* **hana-s03-RG**
 
-    -   Location: *the Azure region you identified in the Before the Hands-on Lab section*
+    -   Virtual machine name: **s03-hana-0**
 
-    -   Size: **D1\_V2 Standard**
+    -   Region: *the Azure region you identified in the Before the Hands-on Lab section*
 
-    -   High availability: **None**
+    -   Availability Options: **No infrastructure redundancy required**
+    
+    -   Image: **Windows Server 2016 Datacenter**
+    
+    -   Size: **Standard DS1 v2**
+    
+    -   Username: **demouser**
 
-    -   Use managed disks: **Yes**
+    -   Password: **demo\@pass123**
 
-    -   Network: click **(new) hana-s03-RG-vnet**. On the **Create virtual network** blade, specify the following settings and click **OK**:
+    -   Public inbound ports: **Allow selected ports**
+    
+    -   Select inbound ports: **RDP**
+    
+    -   Already have a Windows license?: **No**
+
+    -   OS disk type: **Standard HDD**
+    
+    -   Use unmanaged disks: **No**
+
+    -   Virtual network: create a new virtual network named **(new) hana-s03-RG-vnet** with the following settings:
 
         -   Name: **hana-s03-RG-vnet**
-
+        
         -   Address space: **172.16.0.0/20**
 
         -   Subnet name: **subnet-0**
 
         -   Subnet address range: **172.16.0.0/24**
 
-    -   Subnet: **subnet-0 (172.16.0.0/24)**
+    -   Subnet: **subnet-0**
 
-    -   Public IP address: *accept the default value*
+    -   Public IP: *accept the default value*
 
-    -   Network security group: **None**
+    -   Network security group: **Basic**
+    
+    -   Public inbound ports: **Allow selected ports**
+    
+    -   Select inbound ports: **RDP**
+    
+    -   Accelerated networking: **Off**
+    
+    -   Boot diagnostics: **Off**
 
-    -   Extensions: **No extension**
-
-    -   Auto-shutdown: **Off**
-
-    -   Boot diagnostics: **Disabled**
-
-    -   Guest OS diagnostics: **Disabled**
-
+    -   OS guest diagnostics: **Off**
+    
+    -   Managed service identity: **Off**
+    
+    -   Enable auto-shutdown: **Off**
+        
+    -   Enable backup: **Off**
+ 
 #### Exit criteria 
 
 -   A resource group named **s03-hana-RG** containing a Windows VM **s03-hana-0** on **subnet-0** of a virtual network named **hana-s03-RG-vnet**
@@ -265,13 +279,11 @@ In this exercise, you will deploy Azure infrastructure prerequisites for impleme
 
     -   Use the template <https://github.com/Azure/azure-quickstart-templates/tree/master/sap-3-tier-marketplace-image-multi-sid-db-md>
 
-    -   Edit the template to reference the **12-SP3** sku of **SLES 12 BYOS** image
-
     -   Use the following deployment parameters
 
         -   Subscription: *the name of your Azure subscription*
 
-        -   Resource group: **s03-hana-RG**
+        -   Resource group: **hana-s03-RG**
 
         -   Location: *the Azure region you identified in the Before the Hands-on Lab section*
 
@@ -286,10 +298,12 @@ In this exercise, you will deploy Azure infrastructure prerequisites for impleme
         -   System Availability: **HA**
 
         -   Admin Username: **demouser**
+        
+        -   Authentication Type: **password**
 
-        -   Admin Password: **demo\@pass123**
+        -   Admin Password Or Key: **demo\@pass123**
 
-        -   Subnet id: reference the **subnet-1** you created in the previous task
+        -   Subnet id: the resource ID of **subnet-1** you created in the previous task
 
         -   \_artifacts Location: *accept the default value*
 
@@ -558,37 +572,7 @@ In this exercise, you will configure SAP HANA replication.
 | **Description** | **Links** |
 | High Availability of SAP HANA on Azure Virtual Machines (VMs) | <https://docs.microsoft.com/en-us/azure/virtual-machines/workloads/sap/sap-hana-high-availability/> |
 
-### Task 1: Configure STONITH clustering options
-
-#### Tasks to complete
-
--   On s03-db-0, configure the following STONITH clustering options:
-
-        property \$id=\"cib-bootstrap-options\" \\
-
-        no-quorum-policy=\"ignore\" \\
-
-        stonith-enabled=\"true\" \\
-
-        stonith-action=\"reboot\" \\
-
-        stonith-timeout=\"150s\"
-
-        rsc\_defaults \$id=\"rsc-options\" \\
-
-        resource-stickiness=\"1000\" \\
-
-        migration-threshold=\"5000\"
-
-        op\_defaults \$id=\"op-options\" \\
-
-        timeout=\"600\"
-
-#### Exit criteria 
-
--   Successfully applied STONITH clustering options
-
-### Task 2: Create an Azure AD application for the STONITH device
+### Task 1: Create an Azure AD application for the STONITH device
 
 #### Tasks to complete
 
@@ -606,15 +590,25 @@ In this exercise, you will configure SAP HANA replication.
 
 -   An application named **Stonith app** created in the Azure AD tenant associated with the Azure subscription hosting the lab deployment
 
+### Task 1: Create a custom role for the STONITH device
+
+#### Tasks to complete
+
+-   In the Azure AD tenant, create a custom role named **Linux Fence Agent Role** that has permissions to read properties of any Compute provider resource as well as the ability to start and deallocate Azure VMs within the Azure subscription you are using for this lab.
+
+#### Exit criteria 
+
+-   An custom role named **Linux Fence Agent Role** created in the Azure AD tenant associated with the Azure subscription hosting the lab deployment.
+
 ### Task 3: Grant permissions to Azure VMs to the service principal of the STONITH app
 
 #### Tasks to complete
 
--   From the Azure portal, assign the Owner role to the service principal associated with the Stonith app to s03-db-0 and s03-db-1 Azure VMs
+-   From the Azure portal, assign the custom role created in the previous task to the service principal associated with the Stonith app to s03-db-0 and s03-db-1 Azure VMs
 
 #### Exit criteria 
 
--   The service principal associated with the Stonith app assigned the Owner role to s03-db-0 and s03-db-1 Azure VMs
+-   The service principal associated with the Stonith app assigned the custom role to s03-db-0 and s03-db-1 Azure VMs
 
 ### Task 4: Configure the STONITH cluster device
 
@@ -791,8 +785,8 @@ After completing the hands-on lab, you will remove the resource group and all of
 
 3.  At the Bash prompt, run the following:
 
-```
-az group delete \--name s03-hana-RG \--no-wait \--yes
-```
+   ```
+    az group delete \--name s03-hana-RG \--no-wait \--yes
+   ```
 
 You should follow all steps provided *after* the Hands-on lab.
