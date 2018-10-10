@@ -174,31 +174,7 @@ Before migrating the production environment, Contoso wants to test its new deplo
 
 ### Infographic for common scenarios
 
-![A list of common scenarios displays. At this time, we are unable to capture all of the items on the list. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image2.png "Common scenarios list")
-
-![Three solution paths are listed. At this time, we are unable to capture all of the information in the solution paths. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image3.png "Solution paths taken by a lot of customers")
-
-![Customers are using Azure in all stages for SAP landscapes, from only disaster recovery footprints to extra large.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image4.png "SAP on Azure - customer stages in Azure")
-
-SAP Certified Azure VMs
-
-![SAP Certified Azure VMs go from the highest value (NetWeaver Certified), to largest scale-up (SAP Hana certified). At this time, we are unable to capture all of the value types in the window. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image5.png "SAP Certified Azure VMs")
-
-![SAP on Azure has a huge variety of CPU and memory selections. A bulleted list mentions some of these options. At this time, we are unable to capture all of the CPU and memory information in listed. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image6.png "SAP on Azure - huge variety on instances")
-
-![Azure is one of the only public cloud platforms that offers single VM SLAs. At this time, we are unable to capture all of the reliability information listed. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image7.png "SAP on Azure - reliability")
-
-![Azure offers in-region availability. At this time, we are unable to capture all of the in-region availabity information listed. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image8.png "SAP on Azure - in-region availability")
-
-![Azure also offers across-region availability. Azure building blocks include Azure Site Recovery Services (A2A scenario). At this time, we are unable to capture all of the in-region availabity information listed. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image9.png "SAP on Azure - across-region availability 1")
-
-![Across-region availability also offers Building blocks through Virtual Name and DNS. At this time, we are unable to capture all of the across-region availabity information listed. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image10.png "SAP on Azure - across-region availability 2")
-
-![A table displays SAP any database information, including: SAP Product(s), Guest OS, Database, and VM/Server Type. At this time, we are unable to capture all of the information listed in the table. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image11.png "SAP on Azure Certifications (Any DB)")
-
-![A table displays SAP HANA information, including: Scenario, SAP Product(s), Guest OS, Database, and VM/Server Type. At this time, we are unable to capture all of the information listed in the table. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image12.png "SAP on Azure Certifications (HANA)")
-
-![A table displays Azure VM Options for SAP Applications. At this time, we are unable to capture all of the information listed in the table. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image13.png "Azure VM Options for SAP Applications")
+![Common solutions for the case study.](images/CommonScenarios.png "Common Scenarios")
 
 
 ## Step 2: Design a proof of concept solution

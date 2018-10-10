@@ -298,31 +298,7 @@ Before migrating the production environment, Contoso wants to test its new deplo
 
 ### Infographic for common scenarios
 
-![A list of common scenarios displays. At this time, we are unable to capture all of the items on the list. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image2.png "Common scenarios list")
-
-![Three solution paths are listed. At this time, we are unable to capture all of the information in the solution paths. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image3.png "Solution paths taken by a lot of customers")
-
-![Customers are using Azure in all stages for SAP landscapes, from only disaster recovery footprints to extra large.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image4.png "SAP on Azure - customer stages in Azure")
-
-SAP Certified Azure VMs
-
-![SAP Certified Azure VMs go from the highest value (NetWeaver Certified), to largest scale-up (SAP Hana certified). At this time, we are unable to capture all of the value types in the window. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image5.png "SAP Certified Azure VMs")
-
-![SAP on Azure has a huge variety of CPU and memory selections. A bulleted list mentions some of these options. At this time, we are unable to capture all of the CPU and memory information in listed. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image6.png "SAP on Azure - huge variety on instances")
-
-![Azure is one of the only public cloud platforms that offers single VM SLAs. At this time, we are unable to capture all of the reliability information listed. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image7.png "SAP on Azure - reliability")
-
-![Azure offers in-region availability. At this time, we are unable to capture all of the in-region availabity information listed. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image8.png "SAP on Azure - in-region availability")
-
-![Azure also offers across-region availability. Azure building blocks include Azure Site Recovery Services (A2A scenario). At this time, we are unable to capture all of the in-region availabity information listed. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image9.png "SAP on Azure - across-region availability 1")
-
-![Across-region availability also offers Building blocks through Virtual Name and DNS. At this time, we are unable to capture all of the across-region availabity information listed. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image10.png "SAP on Azure - across-region availability 2")
-
-![A table displays SAP any database information, including: SAP Product(s), Guest OS, Database, and VM/Server Type. At this time, we are unable to capture all of the information listed in the table. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image11.png "SAP on Azure Certifications (Any DB)")
-
-![A table displays SAP HANA information, including: Scenario, SAP Product(s), Guest OS, Database, and VM/Server Type. At this time, we are unable to capture all of the information listed in the table. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image12.png "SAP on Azure Certifications (HANA)")
-
-![A table displays Azure VM Options for SAP Applications. At this time, we are unable to capture all of the information listed in the table. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image13.png "Azure VM Options for SAP Applications")
+![Common solutions for the case study.](images/CommonScenarios.png "Common Scenarios")
 
 ## Step 2: Design a proof of concept solution
 
@@ -540,20 +516,22 @@ Our sample implementation procedure consists of the following sequence of steps:
 -   Create STONITH device
 -   Register SAP HANA resources
 
-![The setup sequence for SAP HANA HA on Azure VMs is listed. At this time, we are unable to capture all of the information in the setup sequence. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image18.png "SAP HANA HA on Azure VMs ??? Setup Sequence")
 
 SAP HANA HA on Azure VMs -- Setup Sequence (detailed)
 
-We start by provisioning Azure infrastructure and two Azure Linux VMs (using SLES-for-SAP Applications 12 SP3). To simplify the deployment, we leverage an Azure Resource Manager-based template hosted on GitHub. The template provisions a pair of Azure VMs into a subnet of a virtual network and behind an Azure internal load balancer. The load balance has the health probe set to TCP 62500 and includes a set of predefined load balancing rules. Each rule  has the Direct Server Return enabled.
+We start by provisioning Azure infrastructure and two Azure Linux VMs (using SLES-for-SAP Applications 12 SP3). To simplify the deployment, we leverage an Azure Resource Manager-based template hosted on GitHub. 
+
+The template provisions a pair of Azure VMs into a subnet of a virtual network and behind an Azure internal load balancer. The load balance has the health probe set to TCP 62500 and includes a set of predefined load balancing rules. Each rule  has the Direct Server Return enabled.
 Next, since we are using the Bring Your Own Subscription image of SUSE, we  register our installation to ensure access to package repositories. Following the registration, we update the operating system and install the public-cloud module. In order to facilitate clustering, we also enable cross-node passwordless SSH access. 
+
 We set up our disk volumes by using Logical Volume Manager. First, we create physical volumes for all disks, volume groups for the data files, the log files and the shared HANA directory, and the corresponding logical volumes. Next, we create mount directories, identify UUID values of all logical volumes, create relevant fstab entries, and finally perform mounts. This procedure is carried out on both nodes. 
+
 We also configure name resolution by modifying /etc/hosts on each server.
 Next, we install cluster on the first node and, once completed, join the second node to the newly set up cluster.
-As part of cluster configuration, we  also configure corosync transport and nodelist settings and restart corosync service on both nodes. In addition, we install HANA HA resource agent packages. 
-With all prerequisites in place, we proceed with using HANA DB Lifecycle Manager to install SAP HANA. 
-Following the installation we upgrade SAP Host Agent, configure HANA replication and Cluster Framework, create STONITH device in the form of an Azure Active Directory service principal, and, finally, register SAP HANA resources.
 
-![A more detailed list of the setup sequence for SAP HANA HA on Azure VMs is listed. At this time, we are unable to capture all of the information in the setup sequence. Future versions of this course should address this.At this time, we are unable to capture all of the information in the detailed sequence. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image19.png)
+As part of cluster configuration, we  also configure corosync transport and nodelist settings and restart corosync service on both nodes. In addition, we install HANA HA resource agent packages. 
+
+With all prerequisites in place, we proceed with using HANA DB Lifecycle Manager to install SAP HANA. Following the installation we upgrade SAP Host Agent, configure HANA replication and Cluster Framework, create STONITH device in the form of an Azure Active Directory service principal, and, finally, register SAP HANA resources.
 
 Azure virtual machines - BW on HANA with HA/DR
 
