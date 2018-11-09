@@ -1286,7 +1286,7 @@ In this exercise, you will configure SAP HANA replication.
 
 ### Task 3: Create the primary and the secondary sites 
 
-1.  From the SSH session on s03-db-0, switch to the security context of the s03adm account by running **su -- s03adm**:
+1.  From the SSH session on s03-db-0, switch to the security context of the s03adm account by running **su - s03adm**:
 
     ```
      s03-db-0:/ # su - s03adm
@@ -1311,7 +1311,7 @@ In this exercise, you will configure SAP HANA replication.
      s03-db-0:/ #
     ```
 
-4.  From the SSH session on s03-db-1, switch to the security context of the s03adm account by running **su -- s03adm**:
+4.  From the SSH session on s03-db-1, switch to the security context of the s03adm account by running **su - s03adm**:
 
     ```
      s03-db-1:/ # su - s03adm
