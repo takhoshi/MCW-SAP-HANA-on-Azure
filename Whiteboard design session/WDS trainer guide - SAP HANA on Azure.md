@@ -541,9 +541,9 @@ To further enhance our design by providing disaster recovery capabilities, we cr
 
 *High level solution architecture*
 
-1.  **Design**: What shuld be the Azure region(s) where the solution should be deployed?
+1.  **Design**: What should be the Azure region(s) where the solution should be deployed?
 
-    **Solution:** : The first option delivers the core functionality without SAP HANA high availability and disaster recovery capabilities. It implements a cross premises scenario, with the customer’s on-premises corporate network and an Azure datacenter in the East US 2 region. To further enhance our design by providing disaster recovery capabilities, we create a virtual network in the West US Azure region and leverage ExpressRoute to provide cross-region and cross-premises connectivity. 
+    **Solution:** : The first option of our solution delivers the core functionality without SAP HANA high availability and disaster recovery capabilities. It implements a cross premises scenario, with the customer’s on-premises corporate network and an Azure datacenter in the East US 2 region. To enhance our design, we offer two other options that provide high availability and disaster recovery, respectively. The latter includes a virtual network in the West US Azure region and leverage ExpressRoute to provide cross-region and cross-premises connectivity. 
     
 2.  **Design**: Should the customer use a 2-tier or 3-tier architecture for its SAP deployment?
 
@@ -551,7 +551,33 @@ To further enhance our design by providing disaster recovery capabilities, we cr
 
 3.  **Design**: How would you ensure that the high-availability and disaster recovery requirements are satisfied?
 
-    **Solution:** : Our design offers several options, which allow the customer to choose a solution that provides the required level of high availability and disaster recovery. The first option (Azure Virtual Machines -- BW on HANA without HA) delivers the core functionality without SAP HANA high availability and disaster recovery capabilities. The second option (Azure Virtual Machines -- BW on HANA with HA), delivers the same core functionality as the first option but, in addition, it provides high availability for the SAP HANA deployment. The third option (Azure virtual machines - BW on HANA with HA/DR) further enhances our design by providing disaster recovery capabilities.
+    **Solution:** : Our design offers three options, which allow the customer to choose a solution that provides the required level of high availability and disaster recovery. The first option (Azure Virtual Machines -- BW on HANA without HA) delivers the core functionality without SAP HANA high availability and disaster recovery capabilities. The second option (Azure Virtual Machines -- BW on HANA with HA), delivers the same core functionality as the first option but, in addition, it provides high availability for the SAP HANA deployment. The third option (Azure virtual machines - BW on HANA with HA/DR) further enhances our design by providing disaster recovery capabilities.
+    
+   *Option 1: Azure Virtual Machines -- BW on HANA without HA*
+
+   The first option delivers the core functionality without SAP HANA high availability and disaster recovery capabilities. It implements a cross premises scenario, with the customer’s on-premises corporate network and an Azure datacenter in the East US 2 region. For cross-premises connectivity, it leverages the MPLS-based ExpressRoute circuit. 
+
+   As per customer's requirements, the Azure deployment includes Dev, Test, QA, and production environments. The Dev, Test, and QA Azure VMs reside on the same non-PRD subnet. There are two Dev and Test Standard E32v3 Azure VMs, each with one P15 data disk, one P10 transaction log disk, and one P15 shared disk. A single QA Azure VM uses the Standad M64 size, with one P30 data disk, one P20 transaction log disk, and one P30 shared data disk. In order to minimize cost, Dev, Test, and QA Azure VMs can be turned off whenever they are not actively used.
+
+   The solution also includes a standalone HANA production database running on a Standard M128s Azure VM, which offers memory-optimized design. The Azure VM is configured with two P30 disks, striped into a single volume hosting data files, which deliver total of 2 TB of disk space and 400 MB/s throughput. Logs are stored on a volume residing on two P15 disks that deliver combined 512 GB of disk space and 250 MB/s throughpupt. The shared HANA volume uses one P30 disk, with 1 TB of disk space and 200 MB/s throughput.
+
+   In addition to the Azure VM hosting HANA DB, the solution includes a pair of Azure VMs virtual machines that serve as the ASCS and the application servers. This satisifies the customer requirement, according to which the Business Warehouse application servers must be able to handle 15,000 SAPS. Two E8_v3 Azure VMs give us total of 18,512 SAPS. 
+
+   In order to facilitate short term backup, the solution relies on four P30 Premium Storage disks. For long term backups, the solution utilizes Azure Site Recovery vault, with retention of 30 daily, 12 monthly, and 3 yearly backups, yielding the total of 54TB.
+
+![Diagram of the BW on HANA without HA preferred solution. At this time, we are unable to capture all of the information in the diagram. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image14.png "BW on HANA without HA preferred solution")
+
+   *Option 2: Azure Virtual Machines -- BW on HANA with HA*
+
+   The second option delivers the same core functionality as the first option but, in addition, it provides high availability for the SAP HANA deployment. This is accomplished by provisioning two identically configured M128s Azure VM into the same availabilty set within the PRD-DB subnet. The two Azure VMs form the database tier and host two identically configured HANA instances replicating synchronously with each other by using HANA System Replication. Implementing high availability in the application tier involves provisioning two pairs of Azure VMs into the PRD - ASCS+APPL subnet, with each pair in its own availability set. The first pair consists of two E2_v3 Azure VMs hosting SAP ASCS and NFS components. The second pair consists of a two E8_v3 Azure VMs, forming a Linux-based cluster, hosting the application servers and delivering total of 17,512 SAPS.
+
+![Diagram of the BW on HANA with HA preferred solution. At this time, we are unable to capture all of the information in the diagram. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image16.png "BW on HANA with HA preferred solution")
+
+   *Option 3: Azure virtual machines - BW on HANA with HA/DR*
+
+   To further enhance our design by providing disaster recovery capabilities, we create a virtual network in the West US Azure region and leverage ExpressRoute to provide cross-region and cross-premises connectivity. Next, we deploy another M128s Azure VM in the newly provisioned virtual network and configure it with asynchronous HANA system replication from the cluster hosting the primary database instance. We also implement a standby disaster recovery environment for the application tier. 
+
+![Diagram of the BW on HANA with HA/DR preferred solution.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image20.png)
 
 *Network design:*
 
@@ -593,11 +619,15 @@ To further enhance our design by providing disaster recovery capabilities, we cr
 
     Note that the charges do not take into account licensing costs, ExpressRoute telco charges, pricing of the Microsoft Premier Support which is required when deploying SAP production solutions in Azure, and any managed services.
 
+![A table displays the cost estimates for BW on HANA without HA. At this time, we are unable to capture all of the information in the table. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image15.png "BW on HANA without HA ??? Cost estimate")
+
 2.  **Design**: What is the estimated cost of your solution with HA?
 
     **Solution:** : The cost of the second option reflects charges associated with the additional components necessary to provide high availability. These components effectively double the cost of the production instance of the HANA database included in the first option (for both compute and storage resources). In addition, there are extra charges associated with implementing high availability of the application tier. In this case, the increase represents compute and storage resources of two E2_v3 Azure VMs that host the ASCS and NFS components.
 
     Note that the charges do not take into account licensing costs, ExpressRoute telco charges, pricing of the Microsoft Premier Support which is required when deploying SAP production solutions in Azure, and any managed services.
+
+![A table displays the cost estimates for BW on HANA with HA. At this time, we are unable to capture all of the information in the table. Future versions of this course should address this.](images/Whiteboarddesignsessiontrainerguide-SAPHANAonAzureimages/media/image17.png "BW on HANA with HA Costs")
 
 3.  **Design**:  What is the estimated cost of your solution with HA/DR?
 
